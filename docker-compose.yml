@@ -1,0 +1,48 @@
+services:
+  db:
+    image: postgres:16
+    container_name: brew-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: brewwholesaleadmin
+      POSTGRES_PASSWORD: verycomplicatedpassword
+      POSTGRES_DB: brewwholesaledb
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U brewwholesaleadmin -d brewwholesaledb"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: Api/Dockerfile
+    container_name: brew-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      ASPNETCORE_URLS: "http://0.0.0.0:8080"
+      ConnectionStrings__DefaultConnection: "Host=db;Port=5432;Database=brewwholesaledb;Username=brewwholesaleadmin;Password=verycomplicatedpassword"
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "5000:8080"
+
+  web:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: brew-web
+    environment:
+      VITE_API_URL: "http://localhost:5000/api"
+    depends_on:
+      - api
+    ports:
+      - "5173:5173"
+    command: ["npm","run","dev","--","--host"]
+
+volumes:
+  pgdata:
