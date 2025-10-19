@@ -5,40 +5,39 @@ namespace Api;
 
 public class Program
 {
-    public static async Task Main(string[] args)
-    {
-        var builder = WebApplication.CreateBuilder(args);
-        
-        builder.Services.AddDbContext<BrewWholesaleDbContext>(options =>
-            options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-        
-        const string allowAll = "_allowAll";
-        builder.Services.AddCors(opt =>
-        {
-            opt.AddPolicy(allowAll, p => p.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
-        });
-        
-        builder.Services.AddControllers();
-        builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSwaggerGen();
+	public static async Task Main(string[] args)
+	{
+		var builder = WebApplication.CreateBuilder(args);
 
-        var app = builder.Build();
-        
-        if (app.Environment.IsDevelopment())
-        {
-            using var scope = app.Services.CreateScope();
-            var db = scope.ServiceProvider.GetRequiredService<BrewWholesaleDbContext>();
-            await db.Database.MigrateAsync();
-            await Infrastructure.Seed.SeedData.EnsureAsync(db);
+		builder.Services.AddDbContext<BrewWholesaleDbContext>(options =>
+			options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-            app.UseSwagger();
-            app.UseSwaggerUI();
-        }
+		const string allowAll = "_allowAll";
+		builder.Services.AddCors(opt =>
+		{
+			opt.AddPolicy(allowAll, p => p.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
+		});
 
-        app.UseCors(allowAll);
+		builder.Services.AddControllers();
+		builder.Services.AddEndpointsApiExplorer();
+		builder.Services.AddSwaggerGen();
 
-        app.MapControllers();
+		var app = builder.Build();
 
-        await app.RunAsync();
-    }
+		if (app.Environment.IsDevelopment())
+		{
+			using var scope = app.Services.CreateScope();
+			var db = scope.ServiceProvider.GetRequiredService<BrewWholesaleDbContext>();
+			await db.Database.MigrateAsync();
+
+			app.UseSwagger();
+			app.UseSwaggerUI();
+		}
+
+		app.UseCors(allowAll);
+
+		app.MapControllers();
+
+		await app.RunAsync();
+	}
 }
