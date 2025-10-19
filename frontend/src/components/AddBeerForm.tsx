@@ -78,6 +78,7 @@ export default function AddBeerForm({ onCreated }: { onCreated?: () => void }) {
           </label>
           <input
             type="number"
+            min={0}
             step="0.01"
             className="rounded border px-3 py-2"
             placeholder="Prix HTVA"
