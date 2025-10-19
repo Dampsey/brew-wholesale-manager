@@ -1,5 +1,10 @@
 export type BreweryDto = { id: string; name: string };
-export type WholesalerLineDto = { wholesalerId: string; name: string; stock: number; salePrice: number };
+export type WholesalerLineDto = {
+  wholesalerId: string;
+  name: string;
+  stock: number;
+  salePrice: number;
+};
 export type BeerDto = {
   id: string;
   name: string;
